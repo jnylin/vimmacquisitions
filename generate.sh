@@ -12,10 +12,6 @@ function listAsHtmlTable {
 	cat ${OUTPUT}/${1}.csv | ${LIB}/listAsHtmlTable.awk;
 }
 
-function checkBranch {
-	# För varje rad i filal-csv, gör grep för få fram kategori
-	# Om titeln inte finns, fråga användaren
-}
 
 function generateListFile {
 	echo "Genererar $1";
@@ -40,6 +36,7 @@ function generateListFile {
 }
 
 function generateHtml {
+	htmlFile=${OUTPUT}/${1}.html;
 	htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />';
 	htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>';
 	htmlEnd="</body></html>";
@@ -47,21 +44,21 @@ function generateHtml {
 	case $1 in
 		vuxen*)
 			echo "Generar vuxenlistan";
-			echo $htmlStartOpenHead > ${OUTPUT}/${1}.html
-			echo "<title>Nyinköp för "$1"</title>" >> ${OUTPUT}/${1}.html
-			echo $htmlStartCloseHead >> ${OUTPUT}/${1}.html
+			echo $htmlStartOpenHead > $htmlFile;
+			echo "<title>Nyinköp för "$1"</title>" >> $htmlFile;
+			echo $htmlStartCloseHead >> $htmlFile;
 
-			echo "<h1>Nyinköp av "$1"media</h1>" >> ${OUTPUT}/${1}.html
-			echo "<h2>Romaner, lyrik och annan skönlitteratur</h2>" >> ${OUTPUT}/${1}.html
-			listAsHtmlTable romaner >> ${OUTPUT}/${1}.html
-			echo "<h3>Deckare</h3>" >> ${OUTPUT}/${1}.html
-			listAsHtmlTable deckare >> ${OUTPUT}/${1}.html
-			echo "<h2>Facklitteratur</h2>" >> ${OUTPUT}/${1}.html
-			listAsHtmlTable facklitteratur >> ${OUTPUT}/${1}.html
-			echo "<h2>Biografier</h2>" >> ${OUTPUT}/${1}.html
-			listAsHtmlTable biografier >> ${OUTPUT}/${1}.html
+			echo "<h1>Nyinköp av "$1"media</h1>" >> $htmlFile;
+			echo "<h2>Romaner, lyrik och annan skönlitteratur</h2>" >> $htmlFile;
+			listAsHtmlTable romaner >> $htmlFile;
+			echo "<h3>Deckare</h3>" >> $htmlFile;
+			listAsHtmlTable deckare >> $htmlFile;
+			echo "<h2>Facklitteratur</h2>" >> $htmlFile;
+			listAsHtmlTable facklitteratur >> $htmlFile;
+			echo "<h2>Biografier</h2>" >> $htmlFile;
+			listAsHtmlTable biografier >> $htmlFile;
 
-			echo $htmlEnd >> ${OUTPUT}/${1}.html
+			echo $htmlEnd >> $htmlFile;
 			;;
 
 		barn*)

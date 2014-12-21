@@ -4,30 +4,34 @@ LIB=${LIB:-./lib}
 CSV=${CSV:-./csv}
 OUTPUT=${OUTPUT:-./output}
 
+function bookitList {
+	cat ${CSV}/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk;
+}
+
 function generateTxtFile {
 	echo "Genererar $1";
 	case $1 in
 		romaner*)
-			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | grep .02 | sort > $OUTPUT/${1}.txt \
-				&& cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | grep .03 | sort >> $OUTPUT/${1}.txt \
-				&& cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | grep -v .03 | sort -k 2 >> $OUTPUT/${1}.txt \
-				&& cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | grep -v Hc | sort >> $OUTPUT/${1}.txt
+			bookitList $1 | grep Hc | grep .02 | sort > $OUTPUT/${1}.txt \
+				&& bookitList $1 | grep Hc | grep .03 | sort >> $OUTPUT/${1}.txt \
+				&& bookitList $1 | grep Hc | grep -v .03 | sort -k 2 >> $OUTPUT/${1}.txt \
+				&& bookitList $1 | grep -v Hylla | grep -v Hc | sort >> $OUTPUT/${1}.txt
 			;;
 		deckare|biografier*)
-			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | sort -k 2,2 > $OUTPUT/${1}.txt
+			bookitList $1 | grep -v Hylla | sort -k 2,2 > $OUTPUT/${1}.txt
 			;;
 		serier|facklitteratur|smål|utländska*)
-			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | sort > $OUTPUT/${1}.txt
+			bookitList $1 | grep -v Hylla | sort > $OUTPUT/${1}.txt
 			;;
 		storstil|cd|mp3*)
-			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | sort -k 2,2 > $OUTPUT/${1}.txt \
-				&& cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | grep -v Hc | sort >> $OUTPUT/${1}.txt
+			bookitList $1 | grep Hc | sort -k 2,2 > $OUTPUT/${1}.txt \
+				&& bookitList $1 | grep -v Hylla | grep -v Hc | sort >> $OUTPUT/${1}.txt
 			;;
 	esac
 }
 
 function generateHtml {
-	htmlStartOpenHead="<!DOCTYPE html><html><head>";
+	htmlStartOpenHead='<!DOCTYPE html><html><meta charset="utf-8" /><head>';
 	htmlStartCloseHead="</head><body>";
 	htmlEnd="</body></html>";
 

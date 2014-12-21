@@ -8,12 +8,20 @@ function generateTxtFile {
 	echo "Genererar $1";
 	case $1 in
 		romaner*)
-			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | grep .03 | sort > $OUTPUT/${1}.txt \
+			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | grep .02 | sort > $OUTPUT/${1}.txt \
+				&& cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | grep .03 | sort >> $OUTPUT/${1}.txt \
 				&& cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | grep -v .03 | sort -k 2 >> $OUTPUT/${1}.txt \
 				&& cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | grep -v Hc | sort >> $OUTPUT/${1}.txt
 			;;
 		deckare|biografier*)
-			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | sort -k 2,2 >> $OUTPUT/${1}.txt
+			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | sort -k 2,2 > $OUTPUT/${1}.txt
+			;;
+		serier|facklitteratur|smål|utländska*)
+			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | sort > $OUTPUT/${1}.txt
+			;;
+		storstil|cd|mp3*)
+			cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep Hc | sort -k 2,2 > $OUTPUT/${1}.txt \
+				&& cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk | grep -v Hylla | grep -v Hc | sort >> $OUTPUT/${1}.txt
 			;;
 	esac
 }
@@ -28,7 +36,3 @@ for file in ${CSV}/*.csv; do
 done
 
 exit
-
-# Romaner och annan skönliteratur
-# Deckare
-# Biografier

@@ -12,7 +12,7 @@ function listAsHtmlTable {
 	cat ${OUTPUT}/${1}.csv | ${LIB}/listAsHtmlTable.awk;
 }
 
-function checkBransch {
+function checkBranch {
 	# För varje rad i filal-csv, gör grep för få fram kategori
 	# Om titeln inte finns, fråga användaren
 }

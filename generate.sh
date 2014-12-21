@@ -31,7 +31,7 @@ function generateTxtFile {
 }
 
 function generateHtml {
-	htmlStartOpenHead='<!DOCTYPE html><html><meta charset="utf-8" /><head>';
+	htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />';
 	htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>';
 	htmlEnd="</body></html>";
 

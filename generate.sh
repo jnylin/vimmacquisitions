@@ -6,11 +6,15 @@ OUTPUT=${OUTPUT:-./output}
 
 function bookitList {
 	cat ${CSV}/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk;
-	#cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk;
 }
 
 function listAsHtmlTable {
 	cat ${OUTPUT}/${1}.csv | ${LIB}/listAsHtmlTable.awk;
+}
+
+function checkBransch {
+	# För varje rad i filal-csv, gör grep för få fram kategori
+	# Om titeln inte finns, fråga användaren
 }
 
 function generateListFile {

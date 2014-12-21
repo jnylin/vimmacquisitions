@@ -6,26 +6,31 @@ OUTPUT=${OUTPUT:-./output}
 
 function bookitList {
 	cat ${CSV}/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk;
+	#cat ${CSV}/${1}.csv | ${LIB}/bookitList.awk;
 }
 
-function generateTxtFile {
+function listAsHtmlTable {
+	cat ${OUTPUT}/${1}.csv | ${LIB}/listAsHtmlTable.awk;
+}
+
+function generateListFile {
 	echo "Genererar $1";
 	case $1 in
 		romaner*)
-			bookitList $1 | grep Hc | grep .02 | sort > $OUTPUT/${1}.txt \
-				&& bookitList $1 | grep Hc | grep .03 | sort >> $OUTPUT/${1}.txt \
-				&& bookitList $1 | grep Hc | grep -v .03 | sort -k 2 >> $OUTPUT/${1}.txt \
-				&& bookitList $1 | grep -v Hylla | grep -v Hc | sort >> $OUTPUT/${1}.txt
+			bookitList $1 | grep Hc | grep .02 | sort -t";" > $OUTPUT/${1}.csv \
+				&& bookitList $1 | grep Hc | grep .03 | sort -t";" >> $OUTPUT/${1}.csv \
+				&& bookitList $1 | grep Hc | grep -v .03 | sort -t";" -k 2 >> $OUTPUT/${1}.csv \
+				&& bookitList $1 | grep -v Hylla | grep -v Hc | sort -t";" >> $OUTPUT/${1}.csv
 			;;
 		deckare|biografier*)
-			bookitList $1 | grep -v Hylla | sort -k 2,2 > $OUTPUT/${1}.txt
+			bookitList $1 | grep -v Hylla | sort -t";" -k 2 > $OUTPUT/${1}.csv
 			;;
 		serier|facklitteratur|smål|utländska*)
-			bookitList $1 | grep -v Hylla | sort > $OUTPUT/${1}.txt
+			bookitList $1 | grep -v Hylla | sort -t";" > $OUTPUT/${1}.csv
 			;;
 		storstil|cd|mp3*)
-			bookitList $1 | grep Hc | sort -k 2,2 > $OUTPUT/${1}.txt \
-				&& bookitList $1 | grep -v Hylla | grep -v Hc | sort >> $OUTPUT/${1}.txt
+			bookitList $1 | grep Hc | sort -t";" -k 2,2 > $OUTPUT/${1}.csv \
+				&& bookitList $1 | grep -v Hylla | grep -v Hc | sort -t";" >> $OUTPUT/${1}.csv
 			;;
 	esac
 }
@@ -44,11 +49,13 @@ function generateHtml {
 
 			echo "<h1>Nyinköp av "$1"media</h1>" >> ${OUTPUT}/${1}.html
 			echo "<h2>Romaner, lyrik och annan skönlitteratur</h2>" >> ${OUTPUT}/${1}.html
-			cat ${OUTPUT}/romaner.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
+			listAsHtmlTable romaner >> ${OUTPUT}/${1}.html
 			echo "<h3>Deckare</h3>" >> ${OUTPUT}/${1}.html
-			cat ${OUTPUT}/deckare.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
+			listAsHtmlTable deckare >> ${OUTPUT}/${1}.html
 			echo "<h2>Facklitteratur</h2>" >> ${OUTPUT}/${1}.html
-			cat ${OUTPUT}/facklitteratur.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
+			listAsHtmlTable facklitteratur >> ${OUTPUT}/${1}.html
+			echo "<h2>Biografier</h2>" >> ${OUTPUT}/${1}.html
+			listAsHtmlTable biografier >> ${OUTPUT}/${1}.html
 
 			echo $htmlEnd >> ${OUTPUT}/${1}.html
 			;;
@@ -60,12 +67,12 @@ function generateHtml {
 }
 
 # Rensa output
-( cd $OUTPUT; rm -f *.txt *.html )
+( cd $OUTPUT; rm -f *.csv *.txt *.html )
 
 # Utgå från sparade CSV-filer
 for file in ${CSV}/*.csv; do
 	base=$(basename "$file" ".csv")
-	generateTxtFile $base
+	generateListFile $base
 done
 
 # Skriv html-filer

@@ -32,24 +32,27 @@ function generateTxtFile {
 
 function generateHtml {
 	htmlStartOpenHead='<!DOCTYPE html><html><meta charset="utf-8" /><head>';
-	htmlStartCloseHead="</head><body>";
+	htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>';
 	htmlEnd="</body></html>";
 
 	case $1 in
 		vuxen*)
 			echo "Generar vuxenlistan";
 			echo $htmlStartOpenHead > ${OUTPUT}/${1}.html
-			echo "<title>"$1"</title>" >> ${OUTPUT}/${1}.html
+			echo "<title>Nyinköp för "$1"</title>" >> ${OUTPUT}/${1}.html
 			echo $htmlStartCloseHead >> ${OUTPUT}/${1}.html
-			echo "<h1>Nyinköp</h1>" >> ${OUTPUT}/${1}.html
+
+			echo "<h1>Nyinköp av "$1"media</h1>" >> ${OUTPUT}/${1}.html
 			echo "<h2>Romaner, lyrik och annan skönlitteratur</h2>" >> ${OUTPUT}/${1}.html
 			cat ${OUTPUT}/romaner.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
 			echo "<h3>Deckare</h3>" >> ${OUTPUT}/${1}.html
 			cat ${OUTPUT}/deckare.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
 			echo "<h2>Facklitteratur</h2>" >> ${OUTPUT}/${1}.html
 			cat ${OUTPUT}/facklitteratur.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
+
 			echo $htmlEnd >> ${OUTPUT}/${1}.html
 			;;
+
 		barn*)
 			echo "Generar barnlistan"
 			;;

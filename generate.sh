@@ -26,13 +26,43 @@ function generateTxtFile {
 	esac
 }
 
+function generateHtml {
+	htmlStartOpenHead="<!DOCTYPE html><html><head>";
+	htmlStartCloseHead="</head><body>";
+	htmlEnd="</body></html>";
+
+	case $1 in
+		vuxen*)
+			echo "Generar vuxenlistan";
+			echo $htmlStartOpenHead > ${OUTPUT}/${1}.html
+			echo "<title>"$1"</title>" >> ${OUTPUT}/${1}.html
+			echo $htmlStartCloseHead >> ${OUTPUT}/${1}.html
+			echo "<h1>Nyinköp</h1>" >> ${OUTPUT}/${1}.html
+			echo "<h2>Romaner, lyrik och annan skönlitteratur</h2>" >> ${OUTPUT}/${1}.html
+			cat ${OUTPUT}/romaner.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
+			echo "<h3>Deckare</h3>" >> ${OUTPUT}/${1}.html
+			cat ${OUTPUT}/deckare.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
+			echo $htmlEnd >> ${OUTPUT}/${1}.html
+			echo "<h2>Facklitteratur</h2>" >> ${OUTPUT}/${1}.html
+			cat ${OUTPUT}/facklitteratur.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
+			;;
+		barn*)
+			echo "Generar barnlistan"
+			;;
+	esac
+}
+
 # Rensa output
-( cd $OUTPUT; rm -f *.txt )
+( cd $OUTPUT; rm -f *.txt *.html )
 
 # Utgå från sparade CSV-filer
 for file in ${CSV}/*.csv; do
 	base=$(basename "$file" ".csv")
 	generateTxtFile $base
 done
+
+# Skriv html-filer
+generateHtml "vuxen";
+generateHtml "barn";
 
 exit

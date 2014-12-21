@@ -42,9 +42,9 @@ function generateHtml {
 			cat ${OUTPUT}/romaner.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
 			echo "<h3>Deckare</h3>" >> ${OUTPUT}/${1}.html
 			cat ${OUTPUT}/deckare.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
-			echo $htmlEnd >> ${OUTPUT}/${1}.html
 			echo "<h2>Facklitteratur</h2>" >> ${OUTPUT}/${1}.html
 			cat ${OUTPUT}/facklitteratur.txt | ${LIB}/listAsHtmlTable.awk >> ${OUTPUT}/${1}.html
+			echo $htmlEnd >> ${OUTPUT}/${1}.html
 			;;
 		barn*)
 			echo "Generar barnlistan"

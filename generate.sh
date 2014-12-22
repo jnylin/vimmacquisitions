@@ -30,7 +30,7 @@ function section {
 }
 
 function bookitList {
-	cat ${CSV}/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk;
+	cat ${CSV}/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk | grep -v Hylla;
 }
 
 function listAsHtmlTable {
@@ -124,6 +124,25 @@ function generateHtml {
 	esac
 }
 
+function branches {
+	# Snygga till BOOK-IT-listan
+	for file in ${CSV}/branches/*.csv; do
+		bookitList $(echo $file | sed 's/[\.\/]csv//g') > $OUTPUT/branches/$(basename $file)
+
+		# Jämför
+		while read line
+		do
+			match=$(grep "${line}" $OUTPUT/*.csv);
+			echo $match;
+		done < $OUTPUT/branches/$(basename $file)		
+		
+	done
+	
+
+}
+
+
+
 # Rensa output
 ( cd $OUTPUT; rm -f *.csv *.txt *.html )
 
@@ -133,8 +152,12 @@ for file in ${CSV}/*.csv; do
 	generateListFile $base
 done
 
+branches;
+
 # Skriv html-filer
 generateHtml "vuxen";
 generateHtml "barn";
+
+
 
 exit

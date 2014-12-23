@@ -127,16 +127,35 @@ function generateHtml {
 function branches {
 	# Snygga till BOOK-IT-listan
 	for file in ${CSV}/branches/*.csv; do
-		bookitList $(echo $file | sed 's/[\.\/]csv//g') > $OUTPUT/branches/$(basename $file)
-
+		bookitList $(echo ${file} | sed 's/[\.\/]csv//g') > $OUTPUT/branches/$(basename ${file})
+		case $(basename ${file} ".csv") in
+			storebro*)
+				branch=ST
+				;;
+			"södra_vi"*)
+				branch=SÖ
+				;;
+		esac
+		
 		# Jämför
 		while read line
 		do
-			match=$(grep "${line}" $OUTPUT/*.csv);
-			echo $match;
+			match=$(grep -l "${line}" $OUTPUT/*.csv)
+			if [ $match ]
+			then
+				# Ersätt ingenting med HB, branch
+				# Om någonting (HB), lägg till branch
+				sed "s/\(${line}.*\)\$/\1, ${branch}/" $match > ${match}.new
+				mv ${match}.new $match
+			else
+				# Fråga användaren
+				echo "Tom"
+			fi
 		done < $OUTPUT/branches/$(basename $file)		
 		
 	done
+
+	# Lägg till HB?
 	
 
 }

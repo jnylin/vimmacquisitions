@@ -40,24 +40,49 @@ function listAsHtmlTable {
 
 function generateListFile {
 	echo "Genererar $1";
+
+	local tmp=$OUTPUT/tmpGenerateListFile.csv
+	local result=$OUTPUT/${1}.csv
+
+	bookitList $1 > $tmp
+	sortSection $1 $tmp > $result
+
+	if [ -e $tmp ]
+	then
+		rm $tmp
+	fi
+
+}
+
+function sortSection {
+	local tmp=$OUTPUT/tmpSortSection.csv
+
 	case $1 in
 		romaner|tal*)
-			bookitList $1 | grep Hc | grep .02 | sort -t";" > $OUTPUT/${1}.csv \
-				&& bookitList $1 | grep Hc | grep .03 | sort -t";" >> $OUTPUT/${1}.csv \
-				&& bookitList $1 | grep Hc | grep -v .03 | sort -t";" -k 2 >> $OUTPUT/${1}.csv \
-				&& bookitList $1 | grep -v Hylla | grep -v Hc | sort -t";" >> $OUTPUT/${1}.csv
+			cat $2 | grep Hc | grep .02 | sort -t";" > $tmp \
+				&& cat $2 | grep Hc | grep .03 | sort -t";" >> $tmp \
+				&& cat $2 | grep Hc | grep -v .03 | sort -t";" -k 2 >> $tmp \
+				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
+			cat $tmp
 			;;
 		deckare|sf|fantasy|pocket|biografier|jul|nyb|bild|kapitel|spöken|hästar|ungdom|ljud|daisy|bd|tecken|takk*)
-			bookitList $1 | grep -v Hylla | sort -t";" -k 2 > $OUTPUT/${1}.csv
+			cat $2 | grep -v Hylla | sort -t";" -k 2
 			;;
 		serier|facklitteratur|språkkurser|vuxendvd|barndvd|smål|utländska|visor|sagor|småbarn|fakta|ung|barnutländska*)
-			bookitList $1 | grep -v Hylla | sort -t";" > $OUTPUT/${1}.csv
+			cat $2 | grep -v Hylla | sort -t";"
 			;;
 		storstil|cd|mp3*)
-			bookitList $1 | grep Hc | sort -t";" -k 2,2 > $OUTPUT/${1}.csv \
-				&& bookitList $1 | grep -v Hylla | grep -v Hc | sort -t";" >> $OUTPUT/${1}.csv
+			cat $2 | grep Hc | sort -t";" -k 2,2 > $tmp \
+				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
+			cat $tmp
 			;;
 	esac
+
+	if [ -e $tmp ]
+	then
+		rm $tmp
+	fi
+
 }
 
 function generateHtml {
@@ -143,20 +168,25 @@ function branches {
 			match=$(grep -l "${line}" $OUTPUT/*.csv)
 			if [ $match ]
 			then
-				# Ersätt ingenting med HB, branch
-				# Om någonting (HB), lägg till branch
-				sed "s/\(${line}.*\)\$/\1, ${branch}/" $match > ${match}.new
-				mv ${match}.new $match
+				# HB om inte redan tillagt, börja med det
+				sed "s/\(${line};[HS][BTÖ].*\)\$/\1, ${branch}/" $match > ${match}.new \
+					&& mv ${match}.new $match
+				sed "s/\(${line}\)\$/\1;HB, ${branch}/" $match > ${match}.new \
+					&& mv ${match}.new $match
 			else
-				# Fråga användaren
-				echo "Tom"
+				# Utan träff måste vi fråga om kategori
+				echo -n "Hur ska följande titel kategoriseras ${line}? "
+				read class </dev/tty
+
+				# Lägg till i rätt fil
+				echo $line";"$branch >> $OUTPUT/${class}.csv
+				sortSection $class $OUTPUT/${class}.csv > ${class}.new.csv \
+					&& mv ${class}.new.csv ${class}.csv
+
 			fi
 		done < $OUTPUT/branches/$(basename $file)		
 		
 	done
-
-	# Lägg till HB?
-	
 
 }
 

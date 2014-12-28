@@ -4,7 +4,7 @@ BEGIN { FS = ";";
 		print "<table>"
    	}
 	{ if ( NF > 1 ) {
-		print "<tr><td>"$1,$2,$3,$4"</td></tr>"
+		print "<tr><td>"$1,$2,$3,$4,$5"</td></tr>"
 	  } 
 	}
 END { print "</table>" }

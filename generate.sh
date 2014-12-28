@@ -20,9 +20,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-LIB=${LIB:-./lib}
-CSV=${CSV:-./csv}
-OUTPUT=${OUTPUT:-./output}
+CWD=$(pwd)
+LIB=${LIB:-$CWD/lib}
+CSV=${CSV:-$CWD/csv}
+OUTPUT=${OUTPUT:-$CWD/output}
 
 function openHtml {
 	htmlFile=${OUTPUT}/${1}.html;
@@ -50,7 +51,7 @@ function section {
 }
 
 function bookitList {
-	cat ${CSV}/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk | grep -v Hylla;
+	cat $CSV/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk | grep -v Hylla;
 }
 
 function listAsHtmlTable {
@@ -75,10 +76,11 @@ function generateListFile {
 }
 
 function sortSection {
-	local tmp=$OUTPUT/tmpSortSection.csv
+	local tmp=tmpSortSection.csv
 
 	case $1 in
 		romaner|tal*)
+			touch $tmp
 			cat $2 | grep Hc | grep .02 | sort -t";" > $tmp \
 				&& cat $2 | grep Hc | grep .03 | sort -t";" >> $tmp \
 				&& cat $2 | grep Hc | grep -v .03 | sort -t";" -k 2 >> $tmp \
@@ -92,6 +94,7 @@ function sortSection {
 			cat $2 | grep -v Hylla | sort -t";"
 			;;
 		storstil|cd|mp3*)
+			touch $tmp
 			cat $2 | grep Hc | sort -t";" -k 2,2 > $tmp \
 				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
 			cat $tmp
@@ -172,7 +175,7 @@ function generateHtml {
 function branches {
 	# Snygga till BOOK-IT-listan
 	for file in ${CSV}/branches/*.csv; do
-		bookitList $(echo ${file} | sed 's/[\.\/]csv//g') > $OUTPUT/branches/$(basename ${file})
+		bookitList $(echo branches/$(basename $file ".csv")) > $OUTPUT/branches/$(basename $file)
 		case $(basename ${file} ".csv") in
 			storebro*)
 				branch=ST

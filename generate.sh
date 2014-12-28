@@ -20,6 +20,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+SCRIPTDIR=${SCRIPTDIR:-vimmacquisitions}
 CWD=$(pwd)
 LIB=${LIB:-$CWD/lib}
 CSV=${CSV:-$CWD/csv}
@@ -80,7 +81,6 @@ function sortSection {
 
 	case $1 in
 		romaner|tal*)
-			touch $tmp
 			cat $2 | grep Hc | grep .02 | sort -t";" > $tmp \
 				&& cat $2 | grep Hc | grep .03 | sort -t";" >> $tmp \
 				&& cat $2 | grep Hc | grep -v .03 | sort -t";" -k 2 >> $tmp \
@@ -94,7 +94,6 @@ function sortSection {
 			cat $2 | grep -v Hylla | sort -t";"
 			;;
 		storstil|cd|mp3*)
-			touch $tmp
 			cat $2 | grep Hc | sort -t";" -k 2,2 > $tmp \
 				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
 			cat $tmp
@@ -128,7 +127,7 @@ function generateHtml {
 			section biografier "<h2>Biografier</h2>" >> $htmlFile;
 			
 			echo "<h2>Ljudböcker</h2>" >> $htmlFile;
-			listAsHtmlTable cd >> $htmlFile;
+			section "cd";
 			section mp3 "<h3>Böcker som MP3</h3>";
 			
 			section utländska "<h2>Böcker på andra språk än svenska, danska, norska, engelska, tyska och franska</h2>";
@@ -216,7 +215,12 @@ function branches {
 
 }
 
-
+# Kontrollera att det körs från rätt katalog 
+if ! [[ $(basename $(pwd)) == $SCRIPTDIR ]]
+then
+	echo "Scriptet måste köras från sin egen katalog"
+	exit 1
+fi
 
 # Rensa output
 ( cd $OUTPUT; rm -f *.csv *.txt *.html )
@@ -228,7 +232,6 @@ for file in ${CSV}/*.csv; do
 done
 
 branches;
-
 # Skriv html-filer
 generateHtml "vuxen";
 generateHtml "barn";

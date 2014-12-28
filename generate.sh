@@ -200,8 +200,8 @@ function branches {
 
 				# Lägg till i rätt fil
 				echo $line";"$branch >> $OUTPUT/${class}.csv
-				sortSection $class $OUTPUT/${class}.csv > ${class}.new.csv \
-					&& mv ${class}.new.csv ${class}.csv
+				sortSection $class $OUTPUT/${class}.csv > $OUTPUT/${class}.new.csv \
+					&& mv $OUTPUT/${class}.new.csv $OUTPUT/${class}.csv
 
 			fi
 		done < $OUTPUT/branches/$(basename $file)		

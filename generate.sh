@@ -26,21 +26,18 @@ LIB=${LIB:-$CWD/lib}
 CSV=${CSV:-$CWD/csv}
 OUTPUT=${OUTPUT:-$CWD/output}
 
-function openHtml {
-	htmlFile=${OUTPUT}/${1}.html;
-	htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />';
-	htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>';
-	htmlEnd="</body></html>";
+## HTML 
+htmlFile=${OUTPUT}/${1}.html;
+htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />';
+htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>';
+htmlEnd="</body></html>";
 
+function openHtml {
 	echo $htmlStartOpenHead > $htmlFile;
 	echo "<title>Nyinköp för "$1"</title>" >> $htmlFile;
 	echo $htmlStartCloseHead >> $htmlFile;
 	echo "<h1>Nyinköp av "$1"media</h1>" >> $htmlFile;	
 	
-}
-
-function closeHtml {
-	echo $htmlEnd >> $htmlFile;
 }
 
 function section {
@@ -51,60 +48,12 @@ function section {
 	fi
 }
 
-function bookitList {
-	cat $CSV/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk | grep -v Hylla;
-}
-
 function listAsHtmlTable {
 	cat ${OUTPUT}/${1}.csv | ${LIB}/listAsHtmlTable.awk;
 }
 
-
-function generateListFile {
-	echo "Genererar $1";
-
-	local tmp=$OUTPUT/tmpGenerateListFile.csv
-	local result=$OUTPUT/${1}.csv
-
-	bookitList $1 > $tmp
-	sortSection $1 $tmp > $result
-
-	if [ -e $tmp ]
-	then
-		rm $tmp
-	fi
-
-}
-
-function sortSection {
-	local tmp=tmpSortSection.csv
-
-	case $1 in
-		romaner|tal*)
-			cat $2 | grep Hc | grep .02 | sort -t";" > $tmp \
-				&& cat $2 | grep Hc | grep .03 | sort -t";" >> $tmp \
-				&& cat $2 | grep Hc | grep -v .03 | sort -t";" -k 2 >> $tmp \
-				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
-			cat $tmp
-			;;
-		deckare|sf|fantasy|pocket|biografier|jul|nyb|bild|kapitel|spöken|hästar|ungdom|ljud|daisy|bd|tecken|takk*)
-			cat $2 | grep -v Hylla | sort -t";" -k 2
-			;;
-		serier|facklitteratur|språkkurser|vuxendvd|barndvd|smål|utländska|visor|sagor|småbarn|fakta|ung|barnutländska*)
-			cat $2 | grep -v Hylla | sort -t";"
-			;;
-		storstil|cd|mp3*)
-			cat $2 | grep Hc | sort -t";" -k 2,2 > $tmp \
-				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
-			cat $tmp
-			;;
-	esac
-
-	if [ -e $tmp ]
-	then
-		rm $tmp
-	fi
-
+function closeHtml {
+	echo $htmlEnd >> $htmlFile;
 }
 
 function generateHtml {
@@ -124,7 +73,7 @@ function generateHtml {
 			section facklitteratur "<h2>Facklitteratur</h2>";
 			section språkkurser "<h3>Språkkurser</h3>";				
 			
-			section biografier "<h2>Biografier</h2>" >> $htmlFile;
+			section biografier "<h2>Biografier</h2>";
 			
 			echo "<h2>Ljudböcker</h2>" >> $htmlFile;
 			section "cd";
@@ -171,6 +120,58 @@ function generateHtml {
 	esac
 }
 
+## CSV
+function bookitList {
+	cat $CSV/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk | grep -v Hylla;
+}
+
+function sortSection {
+	local tmp=tmpSortSection.csv
+
+	case $1 in
+		romaner|tal*)
+			cat $2 | grep Hc | grep .02 | sort -t";" > $tmp \
+				&& cat $2 | grep Hc | grep .03 | sort -t";" >> $tmp \
+				&& cat $2 | grep Hc | grep -v .03 | sort -t";" -k 2 >> $tmp \
+				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
+			cat $tmp
+			;;
+		deckare|sf|fantasy|pocket|biografier|jul|nyb|bild|kapitel|spöken|hästar|ungdom|ljud|daisy|bd|tecken|takk*)
+			cat $2 | grep -v Hylla | sort -t";" -k 2
+			;;
+		serier|facklitteratur|språkkurser|vuxendvd|barndvd|smål|utländska|visor|sagor|småbarn|fakta|ung|barnutländska*)
+			cat $2 | grep -v Hylla | sort -t";"
+			;;
+		storstil|cd|mp3*)
+			cat $2 | grep Hc | sort -t";" -k 2,2 > $tmp \
+				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
+			cat $tmp
+			;;
+	esac
+
+	if [ -e $tmp ]
+	then
+		rm $tmp
+	fi
+
+}
+
+function generateListFile {
+	echo "Genererar $1";
+
+	local tmp=$OUTPUT/tmpGenerateListFile.csv
+	local result=$OUTPUT/${1}.csv
+
+	bookitList $1 > $tmp
+	sortSection $1 $tmp > $result
+
+	if [ -e $tmp ]
+	then
+		rm $tmp
+	fi
+
+}
+
 function branches {
 	# Snygga till BOOK-IT-listan
 	for file in ${CSV}/branches/*.csv; do
@@ -215,6 +216,9 @@ function branches {
 
 }
 
+
+## Main
+
 # Kontrollera att det körs från rätt katalog 
 if ! [[ $(basename $(pwd)) == $SCRIPTDIR ]]
 then
@@ -227,15 +231,14 @@ fi
 
 # Utgå från sparade CSV-filer
 for file in ${CSV}/*.csv; do
-	base=$(basename "$file" ".csv")
-	generateListFile $base
+	generateListFile $(basename "$file" ".csv")
 done
 
+# Lägg till filialer
 branches;
+
 # Skriv html-filer
 generateHtml "vuxen";
 generateHtml "barn";
-
-
 
 exit

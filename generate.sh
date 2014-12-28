@@ -199,9 +199,12 @@ function branches {
 				read class </dev/tty
 
 				# Lägg till i rätt fil
-				echo $line";"$branch >> $OUTPUT/${class}.csv
-				sortSection $class $OUTPUT/${class}.csv > $OUTPUT/${class}.new.csv \
-					&& mv $OUTPUT/${class}.new.csv $OUTPUT/${class}.csv
+				# FIXA: Kontroll av angiven class
+				( cd $OUTPUT;
+
+				  echo $line";"$branch >> ${class}.csv
+				  sortSection $class ${class}.csv > ${class}.new.csv \
+				  && mv ${class}.new.csv ${class}.csv )
 
 			fi
 		done < $OUTPUT/branches/$(basename $file)		

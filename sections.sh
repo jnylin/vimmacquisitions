@@ -1,0 +1,2 @@
+vuxen=(romaner deckare sf fantasy pocket serier fackklitteratur språkkurser biografier cd mp3 utländska_utf vuxendvd smål tal storstil)
+barn=(visor småbarn sagor bild jul nyb kapitel spöken hästar fakta ungdom ung ljud daisy bd barnutländska_utf tecken takk barndvd)

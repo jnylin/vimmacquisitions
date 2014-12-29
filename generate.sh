@@ -20,6 +20,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 SCRIPTDIR=${SCRIPTDIR:-vimmacquisitions}
 CWD=$(pwd)
 LIB=${LIB:-$CWD/lib}
@@ -27,12 +28,11 @@ CSV=${CSV:-$CWD/csv}
 OUTPUT=${OUTPUT:-$CWD/output}
 
 ## HTML 
-htmlFile=${OUTPUT}/${1}.html;
-htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />';
-htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>';
-htmlEnd="</body></html>";
-
 function openHtml {
+	htmlFile=${OUTPUT}/${1}.html;
+	local htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />';
+	local htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>';
+
 	echo $htmlStartOpenHead > $htmlFile;
 	echo "<title>Nyinköp för "$1"</title>" >> $htmlFile;
 	echo $htmlStartCloseHead >> $htmlFile;
@@ -53,6 +53,7 @@ function listAsHtmlTable {
 }
 
 function closeHtml {
+	local htmlEnd="</body></html>";
 	echo $htmlEnd >> $htmlFile;
 }
 
@@ -110,7 +111,7 @@ function generateHtml {
 			section ljud "<h2>Ljudböcker</h2>";
 			section daisy "<h2>DAISY</h2>";
 			section bd "<h3>Bok & DAISY</h3>";
-			section barnutländska "<h2>På andra språk än svenska</h2>";
+			section barnutländska_utf "<h2>På andra språk än svenska</h2>";
 			section tecken "<h2>Teckenspråk</h2>";
 			section takk "<h2>Tecken som alternativ och kompletterande kommunikation</h2>";
 			section barndvd "<h2>Filmer</h2>";
@@ -122,10 +123,18 @@ function generateHtml {
 
 ## CSV
 function bookitList {
-	cat $CSV/${1}.csv | iconv -f windows-1252 -t utf-8 | ${LIB}/bookitList.awk | grep -v Hylla;
+
+	cat $CSV/${1}.csv |	if [ $(echo $1 | grep -c utf) -lt 1 ]
+	then
+		iconv -f windows-1252 -t utf-8
+	else
+		cat
+	fi	| ${LIB}/bookitList.awk | grep -v Hylla
+
 }
 
 function sortSection {
+	# Vilket är bästa sättet att sortera utländska språk? Nu sorteras det på författare
 	local tmp=tmpSortSection.csv
 
 	case $1 in
@@ -136,10 +145,10 @@ function sortSection {
 				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
 			cat $tmp
 			;;
-		deckare|sf|fantasy|pocket|biografier|jul|nyb|bild|kapitel|spöken|hästar|ungdom|ljud|daisy|bd|tecken|takk*)
+		deckare|sf|fantasy|pocket|biografier|jul|nyb|bild|kapitel|spöken|hästar|ungdom|ljud|daisy|bd|tecken|takk|utländska|barnutländska*)
 			cat $2 | grep -v Hylla | sort -t";" -k 2
 			;;
-		serier|facklitteratur|språkkurser|vuxendvd|barndvd|smål|utländska|visor|sagor|småbarn|fakta|ung|barnutländska*)
+		serier|facklitteratur|språkkurser|vuxendvd|barndvd|smål|visor|sagor|småbarn|fakta|ung*)
 			cat $2 | grep -v Hylla | sort -t";"
 			;;
 		storstil|cd|mp3*)

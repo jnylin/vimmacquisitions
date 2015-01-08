@@ -23,33 +23,41 @@
 
 SCRIPTDIR=${SCRIPTDIR:-vimmacquisitions}
 CWD=$(pwd)
+PERIOD=$1
 LIB=${LIB:-$CWD/lib}
 CSV=${CSV:-$CWD/csv}
 OUTPUT=${OUTPUT:-$CWD/output}
 
 ## HTML 
 function openHtml {
-	htmlFile=${OUTPUT}/${1}.html;
-	local htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />';
-	local htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>';
+	htmlFile=${OUTPUT}/${1}.html
+	local htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />'
+	local htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>'
 
-	echo $htmlStartOpenHead > $htmlFile;
-	echo "<title>Nyinköp för "$1"</title>" >> $htmlFile;
-	echo $htmlStartCloseHead >> $htmlFile;
-	echo "<h1>Nyinköp av "$1"media</h1>" >> $htmlFile;	
+	echo $htmlStartOpenHead > $htmlFile
+	echo "<title>Nyinköp för "$1"</title>" >> $htmlFile
+	echo $htmlStartCloseHead >> $htmlFile
+	echo "<header><h1>Nyhetslista Vimmerby bibliotek</h1><p>Inköp av ${1}media under ${PERIOD} </p></header>" >> $htmlFile
 	
 }
 
 function section {
 	if [ -e ${OUTPUT}/${1}.csv ]
 		then
-			echo $2 >> $htmlFile;
-			listAsHtmlTable ${1} >> $htmlFile;
+			echo $2 >> $htmlFile
+			listAsHtmlTable ${1} >> $htmlFile
+	fi
+}
+
+function newSection {
+	if [ -e ${OUTPUT}/${1}.csv ]
+		then
+			listAsHtmlTable ${1} "${2}" "${3}" >> $htmlFile
 	fi
 }
 
 function listAsHtmlTable {
-	cat ${OUTPUT}/${1}.csv | ${LIB}/listAsHtmlTable.awk;
+	cat ${OUTPUT}/${1}.csv | ${LIB}/listAsHtmlTable.awk - "${2}" "${3}"
 }
 
 function closeHtml {
@@ -61,62 +69,58 @@ function generateHtml {
 
 	case $1 in
 		vuxen*)
-			echo "Generar vuxenlistan som html";
-			openHtml $1;
+			echo "Generar vuxenlistan som html"
+			openHtml $1 
 			
-			section romaner "<h2>Romaner, lyrik och annan skönlitteratur</h2>";
-			section deckare "<h3>Deckare</h3>";
-			section sf "<h3>Science Fiction</h3>";
-			section fantasy "<h3>Fantasy</h3>";
-			section pocket "<h3>Pocket</h3>";
-			section serier "<h3>Tecknade serier</h3>";		
-			
-			section facklitteratur "<h2>Facklitteratur</h2>";
-			section språkkurser "<h3>Språkkurser</h3>";				
-			
-			section biografier "<h2>Biografier</h2>";
-			
-			echo "<h2>Ljudböcker</h2>" >> $htmlFile;
-			section "cd";
-			section mp3 "<h3>Böcker som MP3</h3>";
-			
-			section utländska "<h2>Böcker på andra språk än svenska, danska, norska, engelska, tyska och franska</h2>";
-			section vuxendvd "<h2>Filmer</h2>";
+			newSection romaner "Romaner, lyrik och annan skönlitteratur" h2
+			newSection deckare "Deckare" h3
+			newSection sf "Science Fiction" h3
+			newSection fantasy "Fantasy" h3
+			newSection pocket "Pocket" h3
+			newSection serier "Tecknade serier" h3
 
-			section smål "<h2>Smålandslitteratur</h2>";
+			newSection facklitteratur "Facklitteratur" h2
+			newSection språkkurser "Språkkurser" h3
 			
-			section tal "<h2>Talböcker</h2>";
+			newSection biografier "Biografier" h2
 			
-			section storstil "<h2>Storstil</h2>";			
+			newSection cd "Ljudböcker" h2
+			newSection mp3 "Böcker som MP3" h3
+			
+			newSection utländska "Böcker på andra språk än svenska, danska, norska, engelska, tyska och franska" h2
+			newSection vuxendvd "Filmer" h2
+			newSection smål "Smålandslitteratur" h2
+			newSection tal "Talböcker" h2
+			newSection storstil "Storstil" h2
 			
 			closeHtml;
 			;;
 
 		barn*)
 			echo "Generar barnlistan som html"
-			openHtml $1;
+			openHtml $1
 
-			section visor "<h2>Barnvisor</h2>";
-			section småbarn "<h2>Småbarnsböcker</h2>";
-			section sagor "<h2>Sagor</h2>";
-			section bild "<h2>Bilderböcker</h2>";
-			section jul "<h2>Julböcker</h2>";
-			section nyb "<h2>Nybörjarläsning</h2>";
-			section kapitel "<h2>Kapitelböcker</h2>";
-			section spöken "<h2>Spöken</h2>";
-			section hästar "<h2>Hästböcker</h2>";
-			section fakta "<h2>Faktaböcker</h2>";
-			section ungdom "<h2>Ungdomsböcker</h2>";
-			section ung "<h3>Att vara ung</h3>";
-			section ljud "<h2>Ljudböcker</h2>";
-			section daisy "<h2>DAISY</h2>";
-			section bd "<h3>Bok & DAISY</h3>";
-			section barnutländska_utf "<h2>På andra språk än svenska</h2>";
-			section tecken "<h2>Teckenspråk</h2>";
-			section takk "<h2>Tecken som alternativ och kompletterande kommunikation</h2>";
-			section barndvd "<h2>Filmer</h2>";
+			newSection visor "Barnvisor" h2
+			newSection småbarn "Småbarnsböcker" h2
+			newSection sagor "Sagor" h2
+			newSection bild "Bilderböcker" h2
+			newSection jul "Julböcker" h2
+			newSection nyb "Nybörjarläsning" h2
+			newSection kapitel "Kapitelböcker" h2
+			newSection spöken "Spöken" h2
+			newSection hästar "Hästböcker" h2
+			newSection fakta "Faktaböcker" h2
+			newSection ungdom "Ungdomsböcker" h2
+			newSection ung "Att vara ung" h3
+			newSection ljud "Ljudböcker" h2
+			newSection daisy "DAISY" h2
+			newSection bd "Bok & DAISY" h3
+			newSection barnutländska_utf "På andra språk än svenska" h2;
+			newSection tecken "Teckenspråk" h2
+			newSection takk "Tecken som alternativ och kompletterande kommunikation" h2
+			newSection barndvd "Filmer" h2
 
-			closeHtml;		
+			closeHtml	
 			;;
 	esac
 }

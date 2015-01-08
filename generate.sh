@@ -32,10 +32,12 @@ OUTPUT=${OUTPUT:-$CWD/output}
 function openHtml {
 	htmlFile=${OUTPUT}/${1}.html
 	local htmlStartOpenHead='<!DOCTYPE html><html><head><meta charset="utf-8" />'
-	local htmlStartCloseHead='<link href="../lib/list.css" rel="stylesheet" type="text/css"></head><body>'
+	local css='<style>caption{text-align:left;font-weight:bold;margin-top:.83em;margin-bottom:.4em}caption.h2{font-size:1.5em}caption.h3{font-size:1.169em}h2{margin-bottom:0}.branch{font-style:italic}</style>'
+	local htmlStartCloseHead='</head><body>'
 
 	echo $htmlStartOpenHead > $htmlFile
 	echo "<title>Nyinköp för "$1"</title>" >> $htmlFile
+	echo $css >> $htmlFile	
 	echo $htmlStartCloseHead >> $htmlFile
 	echo "<header><h1>Nyhetslista Vimmerby bibliotek</h1><p>Inköp av ${1}media under ${PERIOD} </p></header>" >> $htmlFile
 	

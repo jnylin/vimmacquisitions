@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2014 Jakob Nylin (jakob [dot] nylin [at] gmail [dot] com)
+# Copyright 2015 Jakob Nylin (jakob [dot] nylin [at] gmail [dot] com)
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is

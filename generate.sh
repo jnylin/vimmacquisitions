@@ -203,13 +203,15 @@ function branches {
 		# Jämför
 		while read line
 		do
+			# Debug
+			echo "line = "${line}
 			match=$(grep -l "${line}" $OUTPUT/*.csv)
 			if [ $match ]
 			then
 				# HB om inte redan tillagt, börja med det
-				sed "s/\(${line};[HS][BTÖ].*\)\$/\1, ${branch}/" $match > ${match}.new \
+				sed "s#\(${line};[HS][BTÖ].*\)\$#\1, ${branch}#" $match > ${match}.new \
 					&& mv ${match}.new $match
-				sed "s/\(${line}\)\$/\1;HB, ${branch}/" $match > ${match}.new \
+				sed "s#\(${line}\)\$#\1;HB, ${branch}#" $match > ${match}.new \
 					&& mv ${match}.new $match
 			else
 				# Utan träff måste vi fråga om kategori

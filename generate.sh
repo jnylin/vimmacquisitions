@@ -52,9 +52,10 @@ function section {
 }
 
 function newSection {
-	if [ -e ${OUTPUT}/${1}.csv ]
-		then
-			listAsHtmlTable ${1} "${2}" "${3}" >> $htmlFile
+	if [ -e ${OUTPUT}/${1}.csv ]; then
+		listAsHtmlTable ${1} "${2}" "${3}" >> $htmlFile
+	elif [ -e ${OUTPUT}/${1}_utf.csv ]; then
+		listAsHtmlTable ${1}_utf "${2}" "${3}" >> $htmlFile	
 	fi
 }
 
@@ -117,7 +118,8 @@ function generateHtml {
 			newSection ljud "Ljudböcker" h2
 			newSection daisy "DAISY" h2
 			newSection bd "Bok & DAISY" h3
-			newSection barnutländska_utf "På andra språk än svenska" h2;
+			#newSection barnutländska_utf "På andra språk än svenska" h2; # Behöver sätta utf bara om det finns, gör det i newSection, lätt åtgärdat
+			newSection barnutländska "På andra språk än svenska" h2;
 			newSection tecken "Teckenspråk" h2
 			newSection takk "Tecken som alternativ och kompletterande kommunikation" h2
 			newSection barndvd "Filmer" h2
@@ -206,7 +208,7 @@ function branches {
 			# Debug
 			echo "line = "${line}
 			match=$(grep -l "${line}" $OUTPUT/*.csv)
-			if [ $match ]
+			if [ $match ] # unary operator expected Hcf;Sandberg, Inger;Lilla Anna har kalas;2014
 			then
 				# HB om inte redan tillagt, börja med det
 				sed "s#\(${line};[HS][BTÖ].*\)\$#\1, ${branch}#" $match > ${match}.new \
@@ -221,10 +223,16 @@ function branches {
 				# Lägg till i rätt fil
 				# FIXA: Kontroll av angiven class
 				( cd $OUTPUT;
-
-				  echo $line";"$branch >> ${class}.csv
-				  sortSection $class ${class}.csv > ${class}.new.csv \
-				  && mv ${class}.new.csv ${class}.csv )
+				  
+				  if [ -e ${class}_utf.csv ]; then
+					local baseName=${class}_utf
+				  else
+				    local baseName=${class}
+				  fi
+				  
+				  echo $line";"$branch >> ${baseName}.csv
+				  sortSection $class ${baseName}.csv > ${baseName}.new.csv \
+				  && mv ${baseName}.new.csv ${baseName}.csv )
 
 			fi
 		done < $OUTPUT/branches/$(basename $file)		

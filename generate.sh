@@ -180,7 +180,7 @@ function generateListFile {
 	local result=$OUTPUT/${1}.csv
 
 	bookitList $1 > $tmp
-	sortSection $1 $tmp > $result
+	sortSection $(echo $1 | sed s/_utf//) $tmp > $result
 
 	if [ -e $tmp ]
 	then

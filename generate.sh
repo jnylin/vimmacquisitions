@@ -52,10 +52,10 @@ function section {
 }
 
 function newSection {
-	if [ -e ${OUTPUT}/${1}.csv ]; then
-		listAsHtmlTable ${1} "${2}" "${3}" >> $htmlFile
-	elif [ -e ${OUTPUT}/${1}_utf.csv ]; then
-		listAsHtmlTable ${1}_utf "${2}" "${3}" >> $htmlFile	
+	if [ -e "${OUTPUT}/${1}.csv" ]; then
+		listAsHtmlTable "${1}" "${2}" "${3}" >> $htmlFile
+	elif [ -e "${OUTPUT}/${1}_utf.csv" ]; then
+		listAsHtmlTable "${1}_utf" "${2}" "${3}" >> $htmlFile	
 	fi
 }
 
@@ -118,7 +118,6 @@ function generateHtml {
 			newSection ljud "Ljudböcker" h2
 			newSection daisy "DAISY" h2
 			newSection bd "Bok & DAISY" h3
-			#newSection barnutländska_utf "På andra språk än svenska" h2; # Behöver sätta utf bara om det finns, gör det i newSection, lätt åtgärdat
 			newSection barnutländska "På andra språk än svenska" h2;
 			newSection tecken "Teckenspråk" h2
 			newSection takk "Tecken som alternativ och kompletterande kommunikation" h2
@@ -153,8 +152,11 @@ function sortSection {
 				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
 			cat $tmp
 			;;
-		deckare|sf|fantasy|pocket|biografier|jul|nyb|bild|kapitel|spöken|hästar|ungdom|ljud|daisy|bd|tecken|takk|utländska|barnutländska*)
+		deckare|sf|fantasy|pocket|jul|nyb|bild|kapitel|spöken|hästar|ungdom|ljud|daisy|bd|tecken|takk|utländska|barnutländska*)
 			cat $2 | grep -v Hylla | sort -t";" -k 2
+			;;
+		biografier*)
+			cat $2 | grep -v Hylla | sort -k 2
 			;;
 		serier|facklitteratur|språkkurser|vuxendvd|barndvd|smål|visor|sagor|småbarn|fakta|ung*)
 			cat $2 | grep -v Hylla | sort -t";"
@@ -205,10 +207,8 @@ function branches {
 		# Jämför
 		while read line
 		do
-			# Debug
-			echo "line = "${line}
 			match=$(grep -l "${line}" $OUTPUT/*.csv)
-			if [ $match ] # unary operator expected Hcf;Sandberg, Inger;Lilla Anna har kalas;2014
+			if [ $match ]
 			then
 				# HB om inte redan tillagt, börja med det
 				sed "s#\(${line};[HS][BTÖ].*\)\$#\1, ${branch}#" $match > ${match}.new \
@@ -217,7 +217,7 @@ function branches {
 					&& mv ${match}.new $match
 			else
 				# Utan träff måste vi fråga om kategori
-				echo -n "Hur ska följande titel kategoriseras ${line}? "
+				echo -ne "\nHur ska följande titel kategoriseras\n ${line}? "
 				read class </dev/tty
 
 				# Lägg till i rätt fil

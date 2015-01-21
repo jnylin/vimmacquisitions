@@ -146,9 +146,9 @@ function sortSection {
 
 	case $1 in
 		romaner|tal*)
-			cat $2 | grep Hc | grep .02 | sort -t";" > $tmp \
-				&& cat $2 | grep Hc | grep .03 | sort -t";" >> $tmp \
-				&& cat $2 | grep Hc | grep -v .03 | sort -t";" -k 2 >> $tmp \
+			cat $2 | grep Hc | grep .02 | sort -t";" -k 2 > $tmp \
+				&& cat $2 | grep Hc | grep .03 | sort -t";" -k 2 >> $tmp \
+				&& cat $2 | grep Hc | grep -v .02 | grep -v .03 | sort -t";" -k 2 >> $tmp \
 				&& cat $2 | grep -v Hylla | grep -v Hc | sort -t";" >> $tmp
 			cat $tmp
 			;;
@@ -208,7 +208,7 @@ function branches {
 		while read line
 		do
 			match=$(grep -l "${line}" $OUTPUT/*.csv)
-			if [ $match ]
+			if [ $match ] # Om en titel finns under två kategorier blir det fel
 			then
 				# HB om inte redan tillagt, börja med det
 				sed "s#\(${line};[HS][BTÖ].*\)\$#\1, ${branch}#" $match > ${match}.new \
